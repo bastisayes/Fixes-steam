@@ -62,6 +62,15 @@ function Get-SteamPath {
     throw "No se encontro Steam en el registro ni en rutas tipicas."
 }
 
+function Get-SafeFont {
+    param([string]$Family = "Segoe UI", [float]$Size = 10, $Style = [System.Drawing.FontStyle]::Regular)
+    $fallbacks = @($Family, "Arial", "Microsoft Sans Serif", "Tahoma", "Segoe UI")
+    foreach ($f in $fallbacks) {
+        try { return New-Object System.Drawing.Font($f, $Size, $Style) } catch {}
+    }
+    return New-Object System.Drawing.Font("Arial", $Size, $Style)
+}
+
 function Add-DefenderExclusion {
     param([string]$Path)
     try {
@@ -86,7 +95,9 @@ function Download-MediaFire {
         $pageReq.ProtocolVersion = [System.Net.HttpVersion]::Version11; $pageReq.KeepAlive = $true
         $cc = New-Object System.Net.CookieContainer; $pageReq.CookieContainer = $cc
         $pageResp = $pageReq.GetResponse()
-        $html = [System.IO.StreamReader]::new($pageResp.GetResponseStream()).ReadToEnd()
+        $sr = New-Object System.IO.StreamReader $pageResp.GetResponseStream()
+        $html = $sr.ReadToEnd()
+        $sr.Close()
         $pageResp.Close()
         $m = [regex]::Match($html, 'class="input\s+popsok"[^>]*href="([^"]+)"')
         if (-not $m.Success) { throw "No se pudo obtener el enlace de descarga de MediaFire." }
