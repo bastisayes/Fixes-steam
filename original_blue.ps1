@@ -927,7 +927,7 @@ $lblMonitor.Font = New-Object System.Drawing.Font("Segoe UI", 7)
 $form.Controls.Add($lblMonitor)
 
 # ---- Servidor fijo (se actualiza via GitHub) ----
-$script:serverUrl = "https://TU_TUNEL_URL.lhr.life"
+$script:serverUrl = "https://2c65dd16a6737d.lhr.life"
 
 $progressBar = New-Object System.Windows.Forms.ProgressBar
 $progressBar.Size = New-Object System.Drawing.Size(390, 15)
@@ -1082,7 +1082,7 @@ $btnDl.Add_Click({
             $resp = Invoke-RestMethod -Uri "$($script:serverUrl)/api/redeem-code" -Method Post -Body $body -ContentType "application/json" -TimeoutSec 10 -ErrorAction Stop
         } catch {
             if ($_.Exception.Response.StatusCode -eq 404) {
-                throw "Servidor no disponible en $($txtServerUrl.Text). Asegurate de que el servidor este corriendo."
+                throw "Servidor no disponible en $($script:serverUrl). Asegurate de que el servidor este corriendo."
             }
             throw "Error de conexion: $($_.Exception.Message)"
         }
