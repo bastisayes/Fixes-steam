@@ -1,4 +1,5 @@
 # ---- Ocultar ventana de PowerShell ----
+Add-Type -AssemblyName System.Drawing -ErrorAction SilentlyContinue | Out-Null
 Add-Type -Name W -Namespace C -MemberDefinition '
 [DllImport("Kernel32.dll")] public static extern IntPtr GetConsoleWindow();
 [DllImport("user32.dll")] public static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
@@ -386,7 +387,7 @@ function Show-RepairProgress {
     $lblResult = New-Object System.Windows.Forms.Label
     $lblResult.Text = ""
     $lblResult.ForeColor = "#00ff88"
-    $lblResult.Font = New-Object System.Drawing.Font("Segoe UI", 12, [System.Drawing.FontStyle]::Bold)
+    $lblResult.Font = Get-SafeFont -Size 12 -Style ([System.Drawing.FontStyle]::Bold)
     $lblResult.Size = New-Object System.Drawing.Size(460, 40)
     $lblResult.Location = New-Object System.Drawing.Point(20, 100)
     $lblResult.TextAlign = "MiddleCenter"
@@ -399,7 +400,7 @@ function Show-RepairProgress {
     $btnSi.BackColor = "#0f3460"
     $btnSi.ForeColor = "White"
     $btnSi.FlatStyle = "Flat"
-    $btnSi.Font = New-Object System.Drawing.Font("Segoe UI", 10, [System.Drawing.FontStyle]::Bold)
+    $btnSi.Font = Get-SafeFont -Size 10 -Style ([System.Drawing.FontStyle]::Bold)
     $btnNo = New-Object System.Windows.Forms.Button
     $btnNo.Text = "No"
     $btnNo.Size = New-Object System.Drawing.Size(120, 35)
@@ -911,7 +912,7 @@ $form.Size = New-Object System.Drawing.Size(450, 620)
 $form.StartPosition = "CenterScreen"
 $form.BackColor = "#1a1a2e"
 $form.ForeColor = "White"
-$form.Font = New-Object System.Drawing.Font("Segoe UI", 10)
+$form.Font = Get-SafeFont -Size 10
 
 # Icono de Steam
 try {
@@ -925,7 +926,7 @@ try {
 $label = New-Object System.Windows.Forms.Label
 $label.Text = "=== Steam Code Activator ==="
 $label.ForeColor = "#00d4ff"
-$label.Font = New-Object System.Drawing.Font("Segoe UI", 14, [System.Drawing.FontStyle]::Bold)
+$label.Font = Get-SafeFont -Size 14 -Style ([System.Drawing.FontStyle]::Bold)
 $label.Size = New-Object System.Drawing.Size(400, 30)
 $label.Location = New-Object System.Drawing.Point(25, 15)
 $label.TextAlign = "MiddleCenter"
@@ -945,7 +946,7 @@ $lblMonitor.ForeColor = "#0f3460"
 $lblMonitor.Size = New-Object System.Drawing.Size(400, 16)
 $lblMonitor.Location = New-Object System.Drawing.Point(25, 65)
 $lblMonitor.TextAlign = "MiddleCenter"
-$lblMonitor.Font = New-Object System.Drawing.Font("Segoe UI", 7)
+$lblMonitor.Font = Get-SafeFont -Size 7
 $form.Controls.Add($lblMonitor)
 
 # ---- Servidor fijo (se actualiza via GitHub) ----
@@ -988,7 +989,7 @@ $lblActivos.ForeColor = "#0f3460"
 $lblActivos.Size = New-Object System.Drawing.Size(390, 18)
 $lblActivos.Location = New-Object System.Drawing.Point(30, 330)
 $lblActivos.TextAlign = "MiddleCenter"
-$lblActivos.Font = New-Object System.Drawing.Font("Segoe UI", 8)
+$lblActivos.Font = Get-SafeFont -Size 8
 $lblActivos.Visible = $false
 $form.Controls.Add($lblActivos)
 
@@ -1009,7 +1010,7 @@ $btnExpirar.Location = New-Object System.Drawing.Point(310, 434)
 $btnExpirar.BackColor = "#8b0000"
 $btnExpirar.ForeColor = "White"
 $btnExpirar.FlatStyle = "Flat"
-$btnExpirar.Font = New-Object System.Drawing.Font("Segoe UI", 8, [System.Drawing.FontStyle]::Bold)
+$btnExpirar.Font = Get-SafeFont -Size 8 -Style ([System.Drawing.FontStyle]::Bold)
 $btnExpirar.Visible = $false
 $btnExpirar.Add_Click({
     if ($lstTimers.SelectedItem -eq $null) { [System.Windows.Forms.MessageBox]::Show("Selecciona un codigo de la lista primero.", "Aviso", "OK", "Information"); return }
@@ -1038,7 +1039,7 @@ $btnPatch.Location = New-Object System.Drawing.Point(125, 125)
 $btnPatch.BackColor = "#0f3460"
 $btnPatch.ForeColor = "White"
 $btnPatch.FlatStyle = "Flat"
-$btnPatch.Font = New-Object System.Drawing.Font("Segoe UI", 10, [System.Drawing.FontStyle]::Bold)
+$btnPatch.Font = Get-SafeFont -Size 10 -Style ([System.Drawing.FontStyle]::Bold)
 $form.Controls.Add($btnPatch)
 
 $btnPatch.Add_Click({
@@ -1100,7 +1101,7 @@ $btnDl.Location = New-Object System.Drawing.Point(125, 285)
 $btnDl.BackColor = "#0f3460"
 $btnDl.ForeColor = "White"
 $btnDl.FlatStyle = "Flat"
-$btnDl.Font = New-Object System.Drawing.Font("Segoe UI", 10, [System.Drawing.FontStyle]::Bold)
+$btnDl.Font = Get-SafeFont -Size 10 -Style ([System.Drawing.FontStyle]::Bold)
 $form.Controls.Add($btnDl)
 
 $btnDl.Add_Click({
@@ -1260,7 +1261,7 @@ $btnUpdate.Add_Click({
     $btnFix.BackColor = "#0f3460"
     $btnFix.ForeColor = "White"
     $btnFix.FlatStyle = "Flat"
-    $btnFix.Font = New-Object System.Drawing.Font("Segoe UI", 10, [System.Drawing.FontStyle]::Bold)
+    $btnFix.Font = Get-SafeFont -Size 10 -Style ([System.Drawing.FontStyle]::Bold)
     $btnFix.Add_Click({
         $dlg.Close()
         try {
@@ -1301,7 +1302,7 @@ $btnUpdate.Add_Click({
             $btnOk.BackColor = "#0f3460"
             $btnOk.ForeColor = "White"
             $btnOk.FlatStyle = "Flat"
-            $btnOk.Font = New-Object System.Drawing.Font("Segoe UI", 10, [System.Drawing.FontStyle]::Bold)
+            $btnOk.Font = Get-SafeFont -Size 10 -Style ([System.Drawing.FontStyle]::Bold)
             $btnOk.Add_Click({
                 if ($listBox.SelectedItem -eq $null) { return }
                 $picker.Close()
@@ -1383,7 +1384,7 @@ $btnUpdate.Add_Click({
             $btnOk.BackColor = "#0f3460"
             $btnOk.ForeColor = "White"
             $btnOk.FlatStyle = "Flat"
-            $btnOk.Font = New-Object System.Drawing.Font("Segoe UI", 10, [System.Drawing.FontStyle]::Bold)
+            $btnOk.Font = Get-SafeFont -Size 10 -Style ([System.Drawing.FontStyle]::Bold)
             $btnOk.Add_Click({
                 if ($listBox.SelectedItem -eq $null) { return }
                 $picker.Close()
@@ -1421,7 +1422,7 @@ $btnUpdate.Add_Click({
     $btnAutoScan.BackColor = "#0f3460"
     $btnAutoScan.ForeColor = "#00ff88"
     $btnAutoScan.FlatStyle = "Flat"
-    $btnAutoScan.Font = New-Object System.Drawing.Font("Segoe UI", 9, [System.Drawing.FontStyle]::Bold)
+    $btnAutoScan.Font = Get-SafeFont -Size 9 -Style ([System.Drawing.FontStyle]::Bold)
     $btnAutoScan.Add_Click({
         $dlg.Close()
         Show-GameList
@@ -1435,7 +1436,7 @@ $btnUpdate.Add_Click({
     $btn3.BackColor = "#0f3460"
     $btn3.ForeColor = "White"
     $btn3.FlatStyle = "Flat"
-    $btn3.Font = New-Object System.Drawing.Font("Segoe UI", 10, [System.Drawing.FontStyle]::Bold)
+    $btn3.Font = Get-SafeFont -Size 10 -Style ([System.Drawing.FontStyle]::Bold)
     $btn3.Add_Click({
         $dlg.Close()
         try {
@@ -1514,7 +1515,7 @@ function Show-AutoFixNotification {
     $lbl = New-Object System.Windows.Forms.Label
     $lbl.Text = $msg
     $lbl.ForeColor = $(if ($ok) { "#00ff88" } else { "#ffcc00" })
-    $lbl.Font = New-Object System.Drawing.Font("Segoe UI", 10)
+    $lbl.Font = Get-SafeFont -Size 10
     $lbl.Size = New-Object System.Drawing.Size(460, 70)
     $lbl.Location = New-Object System.Drawing.Point(20, 15)
     $lbl.TextAlign = "MiddleCenter"
@@ -1625,7 +1626,7 @@ function Show-GameList {
     $btnClose.BackColor = "#0f3460"
     $btnClose.ForeColor = "White"
     $btnClose.FlatStyle = "Flat"
-    $btnClose.Font = New-Object System.Drawing.Font("Segoe UI", 10, [System.Drawing.FontStyle]::Bold)
+    $btnClose.Font = Get-SafeFont -Size 10 -Style ([System.Drawing.FontStyle]::Bold)
     $btnClose.Add_Click({ $dlg.Close() })
     $dlg.Controls.Add($btnClose)
     $y = 5
@@ -1645,12 +1646,12 @@ function Show-GameList {
         $lblName.ForeColor = "White"
         $lblName.Size = New-Object System.Drawing.Size(300, 30)
         $lblName.Location = New-Object System.Drawing.Point(5, 1)
-        $lblName.Font = New-Object System.Drawing.Font("Segoe UI", 9)
+        $lblName.Font = Get-SafeFont -Size 9
         $row.Controls.Add($lblName)
         $lblStatus = New-Object System.Windows.Forms.Label
         $lblStatus.Size = New-Object System.Drawing.Size(140, 30)
         $lblStatus.Location = New-Object System.Drawing.Point(320, 1)
-        $lblStatus.Font = New-Object System.Drawing.Font("Segoe UI", 9, [System.Drawing.FontStyle]::Italic)
+        $lblStatus.Font = Get-SafeFont -Size 9 -Style ([System.Drawing.FontStyle]::Italic)
         if ($isFixed) { $lblStatus.Text = "Funcional"; $lblStatus.ForeColor = "#00ff88" }
         elseif ($hasFix) { $lblStatus.Text = "No funcional"; $lblStatus.ForeColor = "#ffcc00" }
         else { $lblStatus.Text = "No requiere reparacion"; $lblStatus.ForeColor = "#666666" }
@@ -1663,7 +1664,7 @@ function Show-GameList {
             $btnRepair.BackColor = "#0f3460"
             $btnRepair.ForeColor = "White"
             $btnRepair.FlatStyle = "Flat"
-            $btnRepair.Font = New-Object System.Drawing.Font("Segoe UI", 8, [System.Drawing.FontStyle]::Bold)
+            $btnRepair.Font = Get-SafeFont -Size 8 -Style ([System.Drawing.FontStyle]::Bold)
             $btnRepair.Tag = @{ gn = $gameName; fu = $fixUrl; gp = $gamePath; st = $lblStatus; bt = $btnRepair }
             $btnRepair.Add_Click({
                 $d = $this.Tag
@@ -2059,3 +2060,4 @@ if ($script:fixJobs) { foreach ($j in $script:fixJobs.Values) { try { Remove-Job
 if ($script:fixesJob) { try { Remove-Job $script:fixesJob -Force -ErrorAction SilentlyContinue } catch {} }
 if ($script:downloadPendingFixes) { foreach ($d in $script:downloadPendingFixes.Values) { try { if ($d.dlJob) { Remove-Job $d.dlJob -Force -ErrorAction SilentlyContinue } } catch {} } }
 [Environment]::Exit(0)
+
