@@ -1071,9 +1071,11 @@ $btnPatch.Add_Click({
         $status.Text = "Listo"
         $status.ForeColor = "#00ff88"
     } catch {
+        $fullErr = $_ | Out-String
         Write-ErrorLog "Activar Juegos 1" $_
         $status.Text = "Error: $($_.Exception.Message)"
         $status.ForeColor = "#ff4444"
+        [System.Windows.Forms.MessageBox]::Show($fullErr, "Error Detallado", "OK", "Error")
     } finally {
         $btnPatch.Enabled = $true
     }
