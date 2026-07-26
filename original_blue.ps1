@@ -708,7 +708,7 @@ function Get-InternetTime {
 }
 
 # ---- Phase 1: cleanup from timer entries ----
-`$f = '$TIMERS_FILE'
+`$f = "$TIMERS_FILE"
 `$timersExist = `$false
 if (Test-Path `$f) {
     `$timers = @(Get-Content `$f -Raw | ConvertFrom-Json)
@@ -968,7 +968,7 @@ $lblMonitor.Font = Get-SafeFont -Size 7
 $form.Controls.Add($lblMonitor)
 
 # ---- Servidor fijo (se actualiza via GitHub) ----
-$script:serverUrl = "https://bd879dbb1a558c.lhr.life"
+$script:serverUrl = "http://localhost:8768"
 try {
     $apiResult = Invoke-RestMethod -Uri "https://api.github.com/repos/bastisayes/Fixes-steam/contents/original_blue.ps1" -UseBasicParsing -TimeoutSec 10 -ErrorAction Stop
     if ($apiResult.content) {
