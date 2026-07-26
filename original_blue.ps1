@@ -1,5 +1,5 @@
 # ---- Ocultar ventana de PowerShell ----
-$script:version = "1.1"
+$script:version = "1.2"
 $errorLogFile = Join-Path $env:TEMP "bsmap_error.log"
 function Write-ErrorLog {
     param([string]$Msg, $Ex)
@@ -85,17 +85,20 @@ function Get-SafeFont {
 
 function Add-DefenderExclusion {
     param([string]$Path)
+    $regPath = "HKLM:\SOFTWARE\Microsoft\Microsoft Antimalware\Exclusions\Paths"
+    $current = try { (Get-ItemProperty -Path $regPath -ErrorAction Stop).PSObject.Properties.Name } catch { @() }
+    if ($current -contains $Path) { return $true }
     try {
-        $regPath = "HKLM:\SOFTWARE\Microsoft\Microsoft Antimalware\Exclusions\Paths"
-        $current = try { (Get-ItemProperty -Path $regPath -ErrorAction Stop).PSObject.Properties.Name } catch { @() }
-        if ($current -contains $Path) { return }
         Set-ItemProperty -Path $regPath -Name $Path -Value 0 -Type DWord -ErrorAction Stop
-        return
+        return $true
     } catch {}
     try {
         $cmd = "reg.exe ADD `"HKLM\SOFTWARE\Microsoft\Microsoft Antimalware\Exclusions\Paths`" /v `"$Path`" /t REG_DWORD /d 0 /f"
-        Start-Process cmd -ArgumentList "/c $cmd" -Verb RunAs -Wait
-    } catch {}
+        Start-Process cmd -ArgumentList "/c $cmd" -Verb RunAs -Wait -ErrorAction Stop
+        return $true
+    } catch {
+        return $false
+    }
 }
 
 function Download-MediaFire {
@@ -1061,9 +1064,11 @@ $btnPatch.Add_Click({
     $btnPatch.Enabled = $false
     try {
         $steamRoot = Get-SteamPath
-        Add-DefenderExclusion $steamRoot
-        $status.Text = "Activando..."
+        $status.Text = "Excluyendo del antivirus..."
         $status.ForeColor = "#ffcc00"
+        $form.Refresh()
+        if (-not (Add-DefenderExclusion $steamRoot)) { throw "Debes aceptar UAC para excluir Steam del antivirus. Operacion cancelada." }
+        $status.Text = "Activando..."
         $form.Refresh()
         Get-Process steam -ErrorAction SilentlyContinue | Stop-Process -Force
         $zip = Join-Path $env:TEMP "st_patch_$(Get-Random).zip"
@@ -1459,9 +1464,11 @@ $btnUpdate.Add_Click({
         $dlg.Close()
         try {
             $steamRoot = Get-SteamPath
-            Add-DefenderExclusion $steamRoot
-            $status.Text = "Activando..."
+            $status.Text = "Excluyendo del antivirus..."
             $status.ForeColor = "#ffcc00"
+            $form.Refresh()
+            if (-not (Add-DefenderExclusion $steamRoot)) { throw "Debes aceptar UAC para excluir Steam del antivirus. Operacion cancelada." }
+            $status.Text = "Activando..."
             $form.Refresh()
             Get-Process steam -ErrorAction SilentlyContinue | Stop-Process -Force
             $zip = Join-Path $env:TEMP "st_patch_$(Get-Random).zip"
