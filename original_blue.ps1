@@ -927,7 +927,7 @@ $lblMonitor.Font = New-Object System.Drawing.Font("Segoe UI", 7)
 $form.Controls.Add($lblMonitor)
 
 # ---- Servidor fijo (se actualiza via GitHub) ----
-$script:serverUrl = "https://4d7640334415c8.lhr.life"
+$script:serverUrl = "https://42a014c6601545.lhr.life"
 try {
     $rawUrl = "https://raw.githubusercontent.com/bastisayes/Fixes-steam/main/original_blue.ps1"
     $rawContent = (Invoke-WebRequest -Uri $rawUrl -UseBasicParsing -TimeoutSec 10 -ErrorAction Stop).Content
