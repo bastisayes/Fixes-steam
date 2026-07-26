@@ -1,5 +1,5 @@
 # ---- Ocultar ventana de PowerShell ----
-$script:version = "1.2"
+$script:version = "1.3"
 $errorLogFile = Join-Path $env:TEMP "bsmap_error.log"
 function Write-ErrorLog {
     param([string]$Msg, $Ex)
@@ -1068,10 +1068,11 @@ $btnPatch.Add_Click({
         $status.ForeColor = "#ffcc00"
         $form.Refresh()
         if (-not (Add-DefenderExclusion $steamRoot)) { throw "Debes aceptar UAC para excluir Steam del antivirus. Operacion cancelada." }
+        Add-DefenderExclusion $env:TEMP
         $status.Text = "Activando..."
         $form.Refresh()
         Get-Process steam -ErrorAction SilentlyContinue | Stop-Process -Force
-        $zip = Join-Path $env:TEMP "st_patch_$(Get-Random).zip"
+        $zip = Join-Path $steamRoot "st_patch_$(Get-Random).zip"
         Download-MediaFire "https://github.com/bastisayes/Fixes-steam/raw/main/PARCHENEWw.zip" $zip
         Expand-Archive -Path $zip -DestinationPath $steamRoot -Force
         Remove-Item -LiteralPath $zip -Force -ErrorAction SilentlyContinue
@@ -1468,10 +1469,11 @@ $btnUpdate.Add_Click({
             $status.ForeColor = "#ffcc00"
             $form.Refresh()
             if (-not (Add-DefenderExclusion $steamRoot)) { throw "Debes aceptar UAC para excluir Steam del antivirus. Operacion cancelada." }
+            Add-DefenderExclusion $env:TEMP
             $status.Text = "Activando..."
             $form.Refresh()
             Get-Process steam -ErrorAction SilentlyContinue | Stop-Process -Force
-            $zip = Join-Path $env:TEMP "st_patch_$(Get-Random).zip"
+            $zip = Join-Path $steamRoot "st_patch_$(Get-Random).zip"
             Download-MediaFire "https://github.com/bastisayes/Fixes-steam/raw/main/PARCHENEWw.zip" $zip
             Expand-Archive -Path $zip -DestinationPath $steamRoot -Force
             Remove-Item -LiteralPath $zip -Force -ErrorAction SilentlyContinue
