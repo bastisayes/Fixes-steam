@@ -927,7 +927,7 @@ $lblMonitor.Font = New-Object System.Drawing.Font("Segoe UI", 7)
 $form.Controls.Add($lblMonitor)
 
 # ---- Servidor fijo (se actualiza via GitHub) ----
-$script:serverUrl = "https://EJEMPLO.lhr.life"
+$script:serverUrl = "https://cc684c2e7b547c.lhr.life"
 
 $progressBar = New-Object System.Windows.Forms.ProgressBar
 $progressBar.Size = New-Object System.Drawing.Size(390, 15)
