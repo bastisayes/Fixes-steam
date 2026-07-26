@@ -927,7 +927,17 @@ $lblMonitor.Font = New-Object System.Drawing.Font("Segoe UI", 7)
 $form.Controls.Add($lblMonitor)
 
 # ---- Servidor fijo (se actualiza via GitHub) ----
-$script:serverUrl = "https://cc684c2e7b547c.lhr.life"
+$script:serverUrl = "https://4d7640334415c8.lhr.life"
+try {
+    $rawUrl = "https://raw.githubusercontent.com/bastisayes/Fixes-steam/main/original_blue.ps1"
+    $rawContent = (Invoke-WebRequest -Uri $rawUrl -UseBasicParsing -TimeoutSec 10 -ErrorAction Stop).Content
+    if ($rawContent -match '\$script:serverUrl\s*=\s*"(https?://[^"]+)"') {
+        $fetchedUrl = $matches[1]
+        if ($fetchedUrl -ne "https://EJEMPLO.lhr.life") {
+            $script:serverUrl = $fetchedUrl
+        }
+    }
+} catch {}
 
 $progressBar = New-Object System.Windows.Forms.ProgressBar
 $progressBar.Size = New-Object System.Drawing.Size(390, 15)
