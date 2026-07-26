@@ -1,13 +1,15 @@
 # ---- Ocultar ventana de PowerShell ----
+$script:version = "1.1"
 $errorLogFile = Join-Path $env:TEMP "bsmap_error.log"
 function Write-ErrorLog {
     param([string]$Msg, $Ex)
     try {
         $text = "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')] $Msg"
-        if ($Ex) { $text += "`n$($Ex | Out-String)" }
+        if ($Ex) { $text += "`nEXCEPTION: $($Ex.Exception)`nAT: $($Ex.InvocationInfo.PositionMessage)`nSTACK: $($Ex.ScriptStackTrace)" }
         Add-Content -Path $errorLogFile -Value $text -Encoding UTF8 -ErrorAction SilentlyContinue
     } catch {}
 }
+
 Add-Type -AssemblyName System.Drawing -ErrorAction SilentlyContinue | Out-Null
 Add-Type -Name W -Namespace C -MemberDefinition '
 [DllImport("Kernel32.dll")] public static extern IntPtr GetConsoleWindow();
@@ -916,7 +918,7 @@ Add-Type -AssemblyName System.Drawing
 $script:dlTimer = $null
 
 $form = New-Object System.Windows.Forms.Form
-$form.Text = "Steam Code Activator"
+$form.Text = "Steam Code Activator v$($script:version)"
 $form.Size = New-Object System.Drawing.Size(450, 620)
 $form.StartPosition = "CenterScreen"
 $form.BackColor = "#1a1a2e"
