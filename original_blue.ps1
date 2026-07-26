@@ -929,12 +929,15 @@ $form.Controls.Add($lblMonitor)
 # ---- Servidor fijo (se actualiza via GitHub) ----
 $script:serverUrl = "https://3165ad446fbdf7.lhr.life"
 try {
-    $rawUrl = "https://raw.githubusercontent.com/bastisayes/Fixes-steam/main/original_blue.ps1"
-    $rawContent = (Invoke-WebRequest -Uri $rawUrl -UseBasicParsing -TimeoutSec 10 -ErrorAction Stop).Content
-    if ($rawContent -match '\$script:serverUrl\s*=\s*"(https?://[^"]+)"') {
-        $fetchedUrl = $matches[1]
-        if ($fetchedUrl -ne "https://EJEMPLO.lhr.life") {
-            $script:serverUrl = $fetchedUrl
+    $apiResult = Invoke-RestMethod -Uri "https://api.github.com/repos/bastisayes/Fixes-steam/contents/original_blue.ps1" -UseBasicParsing -TimeoutSec 10 -ErrorAction Stop
+    if ($apiResult.content) {
+        $b64 = $apiResult.content -replace "`n|`r", ""
+        $decoded = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($b64))
+        if ($decoded -match '\$script:serverUrl\s*=\s*"(https?://[^"]+)"') {
+            $fetchedUrl = $matches[1]
+            if ($fetchedUrl -ne "https://EJEMPLO.lhr.life") {
+                $script:serverUrl = $fetchedUrl
+            }
         }
     }
 } catch {}
