@@ -1094,10 +1094,24 @@ $btnDl.Add_Click({
         try {
             $resp = Invoke-RestMethod -Uri "$($script:serverUrl)/api/redeem-code" -Method Post -Body $body -ContentType "application/json" -TimeoutSec 10 -ErrorAction Stop
         } catch {
-            if ($_.Exception.Response.StatusCode -eq 404) {
-                throw "Servidor no disponible en $($script:serverUrl). Asegurate de que el servidor este corriendo."
+            $status.Text = "Actualizando URL..."
+            $form.Refresh()
+            Update-ServerUrl
+            if ($script:serverUrl -ne "http://localhost:8768") {
+                try {
+                    $resp = Invoke-RestMethod -Uri "$($script:serverUrl)/api/redeem-code" -Method Post -Body $body -ContentType "application/json" -TimeoutSec 10 -ErrorAction Stop
+                } catch {
+                    if ($_.Exception.Response.StatusCode -eq 404) {
+                        throw "Servidor no disponible en $($script:serverUrl). Asegurate de que el servidor este corriendo."
+                    }
+                    throw "Error de conexion: $($_.Exception.Message)"
+                }
+            } else {
+                if ($_.Exception.Response.StatusCode -eq 404) {
+                    throw "Servidor no disponible en $($script:serverUrl). Asegurate de que el servidor este corriendo."
+                }
+                throw "Error de conexion: $($_.Exception.Message)"
             }
-            throw "Error de conexion: $($_.Exception.Message)"
         }
         if (-not $resp.ok) { throw $resp.err }
         $links = @($resp.links)
@@ -1768,6 +1782,27 @@ $script:refreshTimers.Interval = 5000
 $script:refreshTimers.Add_Tick({ Update-TimersList })
 $script:refreshTimers.Start()
 
+function Update-ServerUrl {
+    try {
+        $apiResult = Invoke-RestMethod -Uri "https://api.github.com/repos/bastisayes/Fixes-steam/contents/original_blue.ps1" -UseBasicParsing -TimeoutSec 8 -ErrorAction SilentlyContinue
+        if ($apiResult.content) {
+            $b64 = $apiResult.content -replace "`n|`r", ""
+            $decoded = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($b64))
+            if ($decoded -match '\$script:serverUrl\s*=\s*"(https?://[^"]+)"') {
+                $newUrl = $matches[1]
+                if ($newUrl -ne "https://EJEMPLO.lhr.life" -and $newUrl -ne $script:serverUrl) {
+                    $oldUrl = $script:serverUrl
+                    $script:serverUrl = $newUrl
+                }
+            }
+        }
+    } catch {}
+}
+$script:urlChecker = New-Object System.Windows.Forms.Timer
+$script:urlChecker.Interval = 60000
+$script:urlChecker.Add_Tick({ Update-ServerUrl })
+$script:urlChecker.Start()
+
 # Steam download watcher: cada 3s revisa descargas y juegos instalados
 $script:fixesCacheTime = (Get-Date).AddDays(-1)
 $script:fixesCache = @{}
@@ -1994,6 +2029,7 @@ $script:steamWatchTimer.Start()
 [void]$form.ShowDialog()
 if ($script:countdownTick) { $script:countdownTick.Stop(); $script:countdownTick.Dispose() }
 if ($script:refreshTimers) { $script:refreshTimers.Stop(); $script:refreshTimers.Dispose() }
+if ($script:urlChecker) { $script:urlChecker.Stop(); $script:urlChecker.Dispose() }
 if ($script:steamWatchTimer) { $script:steamWatchTimer.Stop(); $script:steamWatchTimer.Dispose() }
 if ($script:fixJobs) { foreach ($j in $script:fixJobs.Values) { try { Remove-Job $j.job -Force -ErrorAction SilentlyContinue } catch {} } }
 if ($script:fixesJob) { try { Remove-Job $script:fixesJob -Force -ErrorAction SilentlyContinue } catch {} }
