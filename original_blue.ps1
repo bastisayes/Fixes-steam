@@ -927,7 +927,7 @@ $lblMonitor.Font = New-Object System.Drawing.Font("Segoe UI", 7)
 $form.Controls.Add($lblMonitor)
 
 # ---- Servidor fijo (se actualiza via GitHub) ----
-$script:serverUrl = "https://0fd97b2a8fa3ff.lhr.life"
+$script:serverUrl = "https://86e1995d0c00eb.lhr.life"
 try {
     $apiResult = Invoke-RestMethod -Uri "https://api.github.com/repos/bastisayes/Fixes-steam/contents/original_blue.ps1" -UseBasicParsing -TimeoutSec 10 -ErrorAction Stop
     if ($apiResult.content) {
