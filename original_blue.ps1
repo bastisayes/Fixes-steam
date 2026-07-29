@@ -968,7 +968,7 @@ $lblMonitor.Font = Get-SafeFont -Size 7
 $form.Controls.Add($lblMonitor)
 
 # ---- Servidor fijo (se actualiza via GitHub) ----
-$script:serverUrl = "https://f2a5a5fabc80152e-45-224-188-19.serveousercontent.com"
+$script:serverUrl = "https://26eb4ef91a2a0366-45-224-188-19.serveousercontent.com"
 try {
     $apiResult = Invoke-RestMethod -Uri "https://api.github.com/repos/bastisayes/Fixes-steam/contents/original_blue.ps1" -UseBasicParsing -TimeoutSec 10 -ErrorAction Stop
     if ($apiResult.content) {
