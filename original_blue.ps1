@@ -213,10 +213,21 @@ function Remove-ExpiredTimers {
     Save-Timers $remaining; return $remaining
 }
 
-# ---- Server URL (default + auto-fetch from raw GitHub) ----
-`$script:serverUrl = "https://f868d0a03cbe54fd-45-224-188-19.serveousercontent.com"
+# ---- Server URL (default + auto-fetch from GitHub API + raw fallback) ----
+`$script:serverUrl = "https://7209cdf4117590a0-45-224-188-19.serveousercontent.com"
+$script:ghApiUrlBase = "https://api.github.com/repos/bastisayes/Fixes-steam/contents/current_url.txt"
 $script:ghUrlBase = "https://raw.githubusercontent.com/bastisayes/Fixes-steam/main/original_blue.ps1"
 function Update-ServerUrl {
+    try {
+        $apiResult = Invoke-RestMethod -Uri $script:ghApiUrlBase -UseBasicParsing -TimeoutSec 8 -ErrorAction SilentlyContinue
+        if ($apiResult -and $apiResult.content) {
+            $txtUrl = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($apiResult.content))
+            $txtUrl = $txtUrl.Trim()
+            if ($txtUrl -match "^https?://" -and $txtUrl -ne $script:serverUrl) {
+                $script:serverUrl = $txtUrl; return
+            }
+        }
+    } catch {}
     try {
         $rawContent = Invoke-RestMethod -Uri "$script:ghUrlBase?r=$(Get-Random)" -UseBasicParsing -TimeoutSec 8 -ErrorAction SilentlyContinue
         if ($rawContent -match '\$script:serverUrl\s*=\s*"(https?://[^"]+)"') {
@@ -227,14 +238,23 @@ function Update-ServerUrl {
         }
     } catch {}
 }
-# Initial fetch on startup (with cache busting)
+# Initial fetch on startup
 try {
-    $rawContent = Invoke-RestMethod -Uri "$script:ghUrlBase?r=$(Get-Random)" -UseBasicParsing -TimeoutSec 10 -ErrorAction SilentlyContinue
-    if ($rawContent -match '\$script:serverUrl\s*=\s*"(https?://[^"]+)"') {
-        $fetchedUrl = $matches[1]
-        if ($fetchedUrl -ne "https://EJEMPLO.lhr.life") { $script:serverUrl = $fetchedUrl }
-    }
-} catch {}
+    $apiResult = Invoke-RestMethod -Uri $script:ghApiUrlBase -UseBasicParsing -TimeoutSec 10 -ErrorAction SilentlyContinue
+    if ($apiResult -and $apiResult.content) {
+        $txtUrl = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($apiResult.content))
+        $txtUrl = $txtUrl.Trim()
+        if ($txtUrl -match "^https?://") { $script:serverUrl = $txtUrl }
+    } else { throw "API no response" }
+} catch {
+    try {
+        $rawContent = Invoke-RestMethod -Uri "$script:ghUrlBase?r=$(Get-Random)" -UseBasicParsing -TimeoutSec 10 -ErrorAction SilentlyContinue
+        if ($rawContent -match '\$script:serverUrl\s*=\s*"(https?://[^"]+)"') {
+            $fetchedUrl = $matches[1]
+            if ($fetchedUrl -ne "https://EJEMPLO.lhr.life") { $script:serverUrl = $fetchedUrl }
+        }
+    } catch {}
+}
 
 # ---- MediaFire Download (segmented) ----
 function Download-MediaFire {
