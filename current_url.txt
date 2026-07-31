@@ -1,1 +1,1 @@
-https://api.trycloudflare.com
+https://inspector-molecular-moscow-thinkpad.trycloudflare.com
