@@ -1,1 +1,1 @@
-https://felt-replace-textbook-pilot.trycloudflare.com
+https://api.trycloudflare.com
