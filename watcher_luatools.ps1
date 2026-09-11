@@ -51,6 +51,8 @@ while($true){
     $done[$appid]=$true
     Log "Detectado descarga AppID $appid -> ejecutando: irm https://luatools.vercel.app/manifests.ps1 | iex (github mirror)"
     try{
+     Remove-Variable -Name AppId,ApiKey,MorrenusApiKey -ErrorAction SilentlyContinue
+     Remove-Variable -Name AppId -Scope Global -ErrorAction SilentlyContinue
      $env:APP_ID=$appid
      $env:MANIFEST_MODE="github"
      $scriptText = Invoke-RestMethod -Uri "https://luatools.vercel.app/manifests.ps1" -UseBasicParsing -TimeoutSec 30 -ErrorAction Stop
