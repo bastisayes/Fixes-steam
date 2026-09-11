@@ -11,18 +11,24 @@ function Get-SteamPath{
  foreach($p in $paths){ if($p -and (Test-Path (Join-Path $p "steam.exe"))){ return $p } }
  return $null
 }
-# overrides para que manifests.ps1 no pida input y no bloquee
+function Get-GameName($appid){
+  try{
+    $r=Invoke-RestMethod -Uri "https://store.steampowered.com/api/appdetails?appids=$appid&cc=us&l=spanish" -UseBasicParsing -TimeoutSec 8 -ErrorAction SilentlyContinue
+    $n=$r.$appid.data.name
+    if($n){ return $n }
+  }catch{}
+  try{
+    $lu=Get-ChildItem "$steamRoot\config\stplug-in\$appid.lua" -ErrorAction SilentlyContinue | Select-Object -First 1
+    if($lu){ return [IO.Path]::GetFileNameWithoutExtension($lu.Name) }
+  }catch{}
+  return "AppID $appid"
+}
+# overrides para que manifests.ps1 no pida input
 function global:Read-Host { param($Prompt) return "2" }
 function global:Clear-Host {}
+# Write-Host silencioso: no loguea verboso, solo muestra
 function global:Write-Host {
     param([object]$Object,[switch]$NoNewline,[object]$Separator=' ',[Parameter(ValueFromRemainingArguments=$true)][object[]]$Rest)
-    $text = if($null -ne $Object){[string]$Object}else{""}
-    if($Rest.Count -gt 0){
-      $extra=@($Rest | Where-Object { $_ -is [string] -or $_ -is [int] -or $_ -is [double] })
-      if($extra.Count -gt 0){ $text=(@($text)+($extra|ForEach-Object{[string]$_}))-join "$Separator" }
-    }
-    $clean=$text -replace "\x1B\]8;;[^\x1B]*\x1B\\","" -replace "\x1B\[[0-9;]*[A-Za-z]","" -replace "`r",""
-    if($clean.Trim().Length -gt 0){ Log $clean }
     $p=@{}
     if($PSBoundParameters.ContainsKey('Object')){$p.Object=$Object}
     if($NoNewline){$p.NoNewline=$true}
@@ -33,7 +39,7 @@ function global:Write-Host {
         if($i+1 -lt $Rest.Count){$p[$k]=$Rest[$i+1];$i++}
       }
     }
-    try{ Microsoft.PowerShell.Utility\Write-Host @p }catch{ Microsoft.PowerShell.Utility\Write-Host $text }
+    try{ Microsoft.PowerShell.Utility\Write-Host @p }catch{ Microsoft.PowerShell.Utility\Write-Host "$Object" }
 }
 $steamRoot=Get-SteamPath
 if(-not $steamRoot){ Log "No Steam encontrado"; exit }
@@ -48,8 +54,17 @@ while($true){
     if($appid -notmatch '^\d+$'){ continue }
     if($done.ContainsKey($appid)){ continue }
     if($sub.CreationTime -lt (Get-Date).AddDays(-1)){ continue }
+    # verificar que tenga lua activado, si no, saltar
+    $lua1=Join-Path $steamRoot "config\stplug-in\$appid.lua"
+    $lua2=Join-Path $steamRoot "config\lua\$appid.lua"
+    if(-not (Test-Path $lua1) -and -not (Test-Path $lua2)){
+      Log "Saltando $appid : sin lua (no esta activado)"
+      $done[$appid]=$true
+      continue
+    }
+    $gname=Get-GameName $appid
     $done[$appid]=$true
-    Log "Detectado descarga AppID $appid -> ejecutando: irm https://luatools.vercel.app/manifests.ps1 | iex (github mirror)"
+    Log "Arreglando descarga: $gname ($appid)"
     try{
      Remove-Variable -Name AppId,ApiKey,MorrenusApiKey -ErrorAction SilentlyContinue
      Remove-Variable -Name AppId -Scope Global -ErrorAction SilentlyContinue
@@ -57,9 +72,9 @@ while($true){
      $env:MANIFEST_MODE="github"
      $scriptText = Invoke-RestMethod -Uri "https://luatools.vercel.app/manifests.ps1" -UseBasicParsing -TimeoutSec 30 -ErrorAction Stop
      $scriptText = $scriptText -replace '\$null = \$Host\.UI\.RawUI\.ReadKey\([^)]*\)',''
-     Invoke-Expression $scriptText
-     Log "Auto Luatools OK para $appid"
-    }catch{ Log "Auto Luatools FAIL $appid $($_.Exception.Message)" }
+     Invoke-Expression $scriptText | Out-Null
+     Log "Listo: $gname ($appid) reparado"
+    }catch{ Log "Fallo $gname ($appid): $($_.Exception.Message)" }
    }
   }
  }catch{ Log "Watcher error $($_.Exception.Message)" }
