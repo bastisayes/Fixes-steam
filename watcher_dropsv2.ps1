@@ -26,6 +26,17 @@ function Get-DepotIds($lua){
   foreach($line in $content){
     if($line -match 'addappid\s*\(\s*(\d+)\s*,\s*\d+\s*,\s*"[a-fA-F0-9]+"'){
       $deps+=$matches[1]
+    } elseif($line -match 'addappid\s*\(\s*(\d+)\s*\)'){
+      # para luas tipo lotes con solo addappid(AppID), tomar AppID como depot si no hay otros
+      $deps+=$matches[1]
+    }
+    if($line -match 'BSMAP_MANIFESTS:(.*)'){
+      $mans=$matches[1] -split ','
+      foreach($m in $mans){
+        if($m -match '(\d+)_\d+\.manifest'){
+          $deps+=$matches[1]
+        }
+      }
     }
   }
   return $deps | Select-Object -Unique
